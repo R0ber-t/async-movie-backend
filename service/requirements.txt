@@ -1,0 +1,6 @@
+quart       
+sqlalchemy  
+asyncpg     
+bcrypt      
+requests
+greenlet

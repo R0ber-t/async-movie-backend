@@ -1,0 +1,51 @@
+services:
+  db:
+
+    image: postgres:15
+    container_name: postgres_si1
+    environment:
+      POSTGRES_USER: alumnodb
+      POSTGRES_PASSWORD: 1234
+      POSTGRES_DB: si1
+    ports:
+
+      - "5432:5432"
+    volumes:
+
+      - ./db/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql
+      - ./db/populate.sql:/docker-entrypoint-initdb.d/2_populate.sql
+      - ./db/actualiza.sql:/docker-entrypoint-initdb.d/3_actualiza.sql
+      - ./db/optimizacion.sql:/docker-entrypoint-initdb.d/4_optimizacion.sql
+      - db_data:/var/lib/postgresql/data
+    
+  user:
+
+    build:
+      context: ./service     
+      network: host    
+      dockerfile: Dockerfile     
+    container_name: si_user_service
+    ports:
+      - "5050:5050"
+    depends_on:
+      - db
+
+    command: python user.py 
+
+  api:
+
+    build:
+      context: ./service   
+      network: host    
+      dockerfile: Dockerfile
+    container_name: si_api_service
+    ports:
+      - "5051:5051"
+    depends_on:
+      - db
+      - user
+
+    command: python api.py
+
+volumes:
+  db_data: 
